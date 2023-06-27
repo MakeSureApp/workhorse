@@ -24,11 +24,11 @@ jobs:
     needs: [run_tests]
     runs-on: [ubuntu-latest]
     env:
-      LOGIN: ${{ secrets.DOCKER_LOGIN }}
-      NAME: ${{ secrets.DOCKER_NAME }}
+      LOGIN: ${{ secrets.DOCKER_LOGIN_SECRET }}
+      NAME: ${{ secrets.DOCKER_REPO_SECRET }}
     steps:
       - name: Login to docker.io
-        run:  echo ${{ secrets.DOCKER_PWD }} | docker login -u ${{ secrets.DOCKER_LOGIN }} --password-stdin
+        run:  echo ${{ secrets.DOCKER_PASSWORD_SECRET }} | docker login -u ${{ secrets.DOCKER_LOGIN_SECRET }} --password-stdin
       - uses: actions/checkout@master
       - name: Build image
         run: docker build -t $LOGIN/$NAME:${GITHUB_REF:11} -f Dockerfile .
