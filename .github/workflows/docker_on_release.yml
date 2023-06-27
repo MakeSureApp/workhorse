@@ -24,9 +24,9 @@ jobs:
       - name: Tests report
         run: coverage report
 
-  build_and_pub:
+  build_and_deploy:
     needs: [run_tests]
-    runs-on: [ubuntu-latest]
+    runs-on: self-hosted
     env:
       LOGIN: kingofsweetsx2k
       NAME: workhorse-vds
@@ -38,3 +38,7 @@ jobs:
         run: docker build -t $LOGIN/$NAME:${GITHUB_REF:11} -f Dockerfile .
       - name: Push image to docker.io
         run: docker push $LOGIN/$NAME:${GITHUB_REF:11}
+      - name: Run Docker Image
+        run: docker run -dp 5000:5000 $NAME
+
+    
