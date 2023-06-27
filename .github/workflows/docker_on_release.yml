@@ -1,8 +1,12 @@
 name: Publish on Docker Hub and Deploy
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - '!refs/tags/*'
+    branches:
+      - '*'
+
 
 jobs:
   run_tests:
