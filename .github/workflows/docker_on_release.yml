@@ -39,6 +39,6 @@ jobs:
       - name: Push image to docker.io
         run: docker push $LOGIN/$NAME:${GITHUB_REF:11}
       - name: Run Docker Image
-        run: docker run -dp 5000:5000 $NAME
+        run: docker run $NAME
 
     
