@@ -35,7 +35,7 @@ def test_results_parse():
     return jsonify(id = 0, package_id = 0, result = True, isActivated = True)
 
 def main():
-    app.run(debug=DEBUG, port=PORT)
+    app.run(host = "0.0.0.0" ,debug=DEBUG, port=PORT)
 
 if __name__ == '__main__':
     main()
