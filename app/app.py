@@ -1,10 +1,15 @@
 from flask import Flask, request, jsonify
 from PIL import Image
 import numpy as np
+from prometheus_flask_exporter import PrometheusMetrics
 
-from common.pereferences import DEBUG, PORT
+
+# from common.pereferences import DEBUG, PORT
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
+
+endpoints = ("test_img_sending", "test_results_parse")
 
 #helpers
 def convert_to_cv2(img):
@@ -35,7 +40,7 @@ def test_results_parse():
     return jsonify(id = 0, package_id = 0, result = True, isActivated = True)
 
 def main():
-    app.run(host = "0.0.0.0" ,debug=DEBUG, port=PORT)
+    app.run("0.0.0.0", 5000, debug=True, threaded=True)
 
 if __name__ == '__main__':
     main()
