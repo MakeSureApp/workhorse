@@ -5,7 +5,7 @@ services:
     container_name: app
     build: app/
     ports:
-      - "8080:5000"
+      - "3080:5000"
 
 
     stop_signal: SIGKILL
