@@ -129,6 +129,9 @@ env.bak/
 venv.bak/
 
 app/detection/data
+app/detection/runs
+app/detection/datasets
+
 
 # Spyder project settings
 .spyderproject

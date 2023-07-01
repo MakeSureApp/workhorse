@@ -1,7 +1,32 @@
 from flask import Flask, request, jsonify
 from PIL import Image
 import numpy as np
+import cv2
+
+from ultralytics import YOLO
+
+
+# import whatimage
 from prometheus_flask_exporter import PrometheusMetrics
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
+
+types = {
+    0: 'HIV',
+    1: 'Hepatitis',
+    2: 'Syphilis'
+}
+
+results = {
+    0: 'Negative',
+    1: 'Positive',
+    2: 'Failure'
+}
+
+model_type = YOLO('./weights/best_type.pt')
+model_result = YOLO('./weights/best_result.pt')
+qcd = cv2.QRCodeDetector()
 
 
 # from common.pereferences import DEBUG, PORT
@@ -31,6 +56,7 @@ def test_img_sending():
 
     return f"loaded image with shape: {cv_img.shape}"
 
+
 @app.route('/test_results_parse', methods = ['POST'])
 def test_results_parse():
     img = Image.open(request.files['img'].stream)
@@ -39,8 +65,46 @@ def test_results_parse():
 
     return jsonify(id = 0, package_id = 0, result = True, isActivated = True)
 
+
+@app.route('/test_results_detection', methods = ['POST'])
+def test_results_detection():
+    id = ""
+    package_id = ""
+    test_type = ""
+    result = ""
+    isActivated = True
+    error_code = ""
+
+    # Get image
+    img = request.files['img'].stream
+    img = Image.open(img)
+    cv_img = convert_to_cv2(img)
+
+    retval, decoded_info, points, straight_qrcode = qcd.detectAndDecodeMulti(cv_img)
+    print(decoded_info)
+
+    try:
+        id, package_id = decoded_info[0].split('\r\n')
+
+    except:
+        return jsonify(id = None, package_id = None, test_type = None, result = None, isActivated = False, error_code = "0")
+
+    try:
+        test_type = types[int(model_type.predict(cv_img)[0].boxes.cls[0])]
+
+    except:
+        return jsonify(id = id, package_id = package_id, test_type = None, result = None, isActivated = False, error_code = "1")
+    
+    try:
+        result = results[int(model_result.predict(cv_img)[0].boxes.cls[0])]
+    except:
+        return jsonify(id = id, package_id = package_id, test_type = test_type, result = None, isActivated = False, error_code = "2")
+
+
+    return jsonify(id = id, package_id = package_id, test_type = test_type, result = result, isActivated = False, error_code = None)
+
 def main():
-    app.run("0.0.0.0", 5000, debug=True, threaded=True)
+    app.run("0.0.0.0", 5000, debug=False, threaded=True)
 
 if __name__ == '__main__':
     main()
