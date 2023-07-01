@@ -2,6 +2,10 @@ from flask import Flask, request, jsonify
 from PIL import Image
 import numpy as np
 import cv2
+from kraken import binarization
+
+from pyzbar.pyzbar import decode
+from pyzbar.pyzbar import ZBarSymbol
 
 from ultralytics import YOLO
 
@@ -24,8 +28,8 @@ results = {
     2: 'Failure'
 }
 
-model_type = YOLO('app/weights/best_type.pt')
-model_result = YOLO('app/weights/best_result.pt')
+model_type = YOLO('./weights/best_type.pt')
+model_result = YOLO('./weights/best_result.pt')
 qcd = cv2.QRCodeDetector()
 
 
@@ -78,16 +82,17 @@ def test_results_detection():
     # Get image
     img = request.files['img'].stream
     img = Image.open(img)
-    cv_img = convert_to_cv2(img)
-
-    retval, decoded_info, points, straight_qrcode = qcd.detectAndDecodeMulti(cv_img)
-    print(decoded_info)
-
+    
+    bw_im = binarization.nlbin(img)
+    
     try:
-        id, package_id = decoded_info[0].split('\r\n')
+        decoded_info = decode(bw_im, symbols=[ZBarSymbol.QRCODE])[0].data.decode(encoding='utf-8')
+        id, package_id = decoded_info.split('\r\n')
 
     except:
         return jsonify(id = None, package_id = None, test_type = None, result = None, isActivated = False, error_code = "0")
+
+    cv_img = convert_to_cv2(img)
 
     try:
         test_type = types[int(model_type.predict(cv_img)[0].boxes.cls[0])]
