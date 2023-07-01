@@ -24,8 +24,8 @@ results = {
     2: 'Failure'
 }
 
-model_type = YOLO('./weights/best_type.pt')
-model_result = YOLO('./weights/best_result.pt')
+model_type = YOLO('app/weights/best_type.pt')
+model_result = YOLO('app/weights/best_result.pt')
 qcd = cv2.QRCodeDetector()
 
 
