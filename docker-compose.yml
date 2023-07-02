@@ -3,7 +3,7 @@ services:
 
   app:
     container_name: app
-    build: app/
+    build: server/
     ports:
       - "3080:5000"
 
