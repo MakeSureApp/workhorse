@@ -35,7 +35,7 @@ jobs:
         run:  echo 52868866Abc | docker login -u kingofsweetsx2k --password-stdin
       - uses: actions/checkout@master
       - name: Build image
-        working-directory: ./app
+        working-directory: ./server
         run: docker build -t $LOGIN/$NAME:${GITHUB_REF:11} .
       - name: Push image to docker.io
         run: docker push $LOGIN/$NAME:${GITHUB_REF:11}
