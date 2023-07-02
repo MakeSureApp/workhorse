@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <title>Make Sure</title>
+
+    <link rel="stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/testing.css') }}" />
+
+  </head>
+  <body>
+    <div class="main_container">
+        <h2 class="main_header">Тестирование распознавания результатов тестов на изображениях</h1>
+        <p>
+          Загрузите изображение:
+        </p>
+        <form method=post action="/result_recognition" enctype=multipart/form-data>
+          <input type=file name=img>
+          <input type=submit value=Upload>
+        </form>
+        <a href="/">На главную</a>
+    </div>
+  </body>
+</html>

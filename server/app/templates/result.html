@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <title>Make Sure</title>
+
+    <link rel="stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/testing.css') }}" />
+
+  </head>
+  <body>
+    <div class="main_container">
+        <h2 class="main_header">Результат обработки:</h1>
+        <p class = "result_text">
+          {{result}}
+        </p>
+
+        <img src="{{ result_image }}" alt="Processing result">
+
+        <a href= "{{ route }}" >Ещё раз</a>
+        <a href="/">На главную</a>
+    </div>
+  </body>
+</html>
