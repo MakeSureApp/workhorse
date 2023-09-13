@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import cv2
-from kraken import binarization
+# from kraken import binarization
 from pyzbar.pyzbar import decode
 from pyzbar.pyzbar import ZBarSymbol
 from ultralytics import YOLO
@@ -10,15 +10,21 @@ from pillow_heif import register_heif_opener
 from base64 import b64encode
 from io import BytesIO
 
+from qreader import QReader
+
 
 #######################################################################################
 from app import app
+from app.detection_onnx import detect_objects_on_image
 
 register_heif_opener()
 
 model_type = YOLO('./weights/best_type.pt')
 model_result = YOLO('./weights/best_result.pt')
 qcd = cv2.QRCodeDetector()
+
+detector = QReader()
+
 
 from common.pereferences import DEBUG, PORT, HOST, THREADED, TYPES, RESULTS
 from common.helpers import convert_to_cv2, convert_to_pillow
@@ -64,28 +70,16 @@ def qr_recognition():
     draw = ImageDraw.Draw(img)
 
 
-    bw_im = binarization.nlbin(img)
+    # bw_im = binarization.nlbin(img)
 
     try:
-        d = decode(bw_im, symbols=[ZBarSymbol.QRCODE])[0]
-
-        decoded_info = d.data.decode(encoding='utf-8')
-
-        draw.rectangle(((d.rect.left, d.rect.top), (d.rect.left + d.rect.width, d.rect.top + d.rect.height)),
-                   outline=(0, 0, 255), width=3)
-
-        draw.polygon(d.polygon, outline=(0, 255, 0), width=3)
-        
-        draw.text((d.rect.left, d.rect.top + d.rect.height), d.data.decode(),
-              (255, 0, 0))
-
-
+        decoded_info = detector.detect_and_decode(image=convert_to_cv2(img))[0]
     except:
         return render_template("result.html", route = "/testing_qr", result = "Null" )
 
-    image_io = BytesIO()
-    img.save(image_io, 'PNG')
-    dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
+    # image_io = BytesIO()
+    # img.save(image_io, 'PNG')
+    # dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
 
     return render_template("result.html", route = "/testing_qr", result = decoded_info, result_image = dataurl )
 
@@ -148,26 +142,21 @@ def test_results_detection():
 
     img = request.files['img'].stream
     img = Image.open(img)
-    
-    bw_im = binarization.nlbin(img)
-    
+        
     try:
-        decoded_info = decode(bw_im, symbols=[ZBarSymbol.QRCODE])[0].data.decode(encoding='utf-8')
+        decoded_info = detector.detect_and_decode(image=convert_to_cv2(img))[0]
         id, package_id = decoded_info.split('\r\n')
 
     except:
         return jsonify(id = None, package_id = None, test_type = None, result = None, isActivated = False, error_code = "0")
 
-    cv_img = convert_to_cv2(img)
-
     try:
-        test_type = types[int(model_type.predict(cv_img)[0].boxes.cls[0])]
-
+        test_type = detect_objects_on_image(img, 'best_type')[0][4]
     except:
         return jsonify(id = id, package_id = package_id, test_type = None, result = None, isActivated = False, error_code = "1")
     
     try:
-        result = results[int(model_result.predict(cv_img)[0].boxes.cls[0])]
+        result = detect_objects_on_image(img, 'best_result')[0][4]
     except:
         return jsonify(id = id, package_id = package_id, test_type = test_type, result = None, isActivated = False, error_code = "2")
 
