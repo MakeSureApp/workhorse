@@ -2,9 +2,6 @@ from flask import Flask, request, jsonify, render_template
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import cv2
-# from kraken import binarization
-from pyzbar.pyzbar import decode
-from pyzbar.pyzbar import ZBarSymbol
 from ultralytics import YOLO
 from pillow_heif import register_heif_opener
 from base64 import b64encode
@@ -13,15 +10,14 @@ from io import BytesIO
 from qreader import QReader
 
 
-#######################################################################################
 from app import app
 from app.detection_onnx import detect_objects_on_image
+from app.supabase_api import get_n_send
 
 register_heif_opener()
 
 model_type = YOLO('./weights/best_type.pt')
 model_result = YOLO('./weights/best_result.pt')
-qcd = cv2.QRCodeDetector()
 
 detector = QReader()
 
@@ -162,6 +158,10 @@ def test_results_detection():
 
 
     return jsonify(id = id, package_id = package_id, test_type = test_type, result = result, isActivated = False, error_code = None)
+
+@app.route('/notifi_reducer', methods = ['POST'])
+def notifi_reducer():
+    get_n_send()
 
 def main():
     app.run(HOST, PORT, debug=DEBUG, threaded=THREADED)
