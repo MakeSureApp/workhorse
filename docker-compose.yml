@@ -19,7 +19,7 @@ services:
       - app
 
   grafana:
-    image: grafana/grafana:5.1.0
+    image: grafana/grafana:latest
     volumes:
       - ./grafana/config.ini:/etc/grafana/grafana.ini
       - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/default.yaml
