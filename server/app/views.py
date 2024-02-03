@@ -28,11 +28,9 @@ from common.helpers import convert_to_cv2, convert_to_pillow
 
 @app.before_request
 def check_api_key():
-    if request.endpoint not in ['static', 'not_need_key_endpoint']:
-        # Проверьте наличие ключа в запросе
+    if request.endpoint not in ['static', 'not_need_key_endpoint', 'metrics']:
         api_key = request.headers.get('Api-Key')
 
-        # Сравните ключ с ожидаемым значением
         if api_key != SECRET_KEY:
             return jsonify({'error': 'Invalid API key'}), 401
 
