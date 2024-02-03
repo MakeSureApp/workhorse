@@ -54,6 +54,8 @@ def checker():
     elif result is not None:
         # Если ключ не совпадает, возвращаем значение ключа из базы данных
         return result[0]
+    else:
+        return "NOT KEY NAME"
 
 @app.route('/')
 @app.route('/index')
