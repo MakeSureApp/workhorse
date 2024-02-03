@@ -10,7 +10,7 @@ from io import BytesIO
 from qreader import QReader
 
 
-from app import app
+from app import app, db_connection, cursor
 from app.detection_onnx import detect_objects_on_image
 from app.supabase_api import get_n_send
 
@@ -28,11 +28,32 @@ from common.helpers import convert_to_cv2, convert_to_pillow
 
 @app.before_request
 def check_api_key():
-    if request.endpoint not in ['static', 'not_need_key_endpoint', 'metrics']:
+    if request.endpoint not in ['static', 'checker', 'metrics']:
         api_key = request.headers.get('Api-Key')
 
         if api_key != SECRET_KEY:
             return jsonify({'error': 'Invalid API key'}), 401
+        
+@app.route('/checker', methods=['POST'])
+def checker():
+    data = request.json
+
+    key_name = data.get('name')
+    key_value = data.get('key')
+
+    if key_name is None or key_value is None:
+        return "Missing 'name' or 'key' in the request data", 400
+
+    query = "SELECT api_key FROM api_credentials WHERE service_name = %s"
+    cursor.execute(query, (key_name,))
+    result = cursor.fetchone()
+
+    if result is not None and result[0] == key_value:
+        # Если ключ совпадает, возвращаем "OK"
+        return "OK"
+    elif result is not None:
+        # Если ключ не совпадает, возвращаем значение ключа из базы данных
+        return result[0]
 
 @app.route('/')
 @app.route('/index')

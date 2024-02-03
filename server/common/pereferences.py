@@ -10,6 +10,13 @@ HOST = "0.0.0.0"
 SECRET_KEY = os.getenv('SECRET_KEY')
 THREADED = True
 
+# DB part
+DBHOST = "149.154.71.67:3306"
+DBUSER = "main_admin"
+DBPASSWORD = 'Accessors231'
+DBNAME = 'my_api_keys_db'
+
+
 # Recognition part
 TYPES = {
     0: 'HIV',
