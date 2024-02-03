@@ -28,7 +28,7 @@ from common.helpers import convert_to_cv2, convert_to_pillow
 @app.route('/')
 @app.route('/index')
 def source():
-    return render_template("index.html")
+    return "The server is up and running..."
 
 
 @app.route('/testing_qr')
