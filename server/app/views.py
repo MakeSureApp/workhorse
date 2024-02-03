@@ -22,8 +22,19 @@ model_result = YOLO('./weights/best_result.pt')
 detector = QReader()
 
 
-from common.pereferences import DEBUG, PORT, HOST, THREADED, TYPES, RESULTS
+from common.pereferences import DEBUG, PORT, HOST, THREADED, TYPES, RESULTS, SECRET_KEY
 from common.helpers import convert_to_cv2, convert_to_pillow
+
+
+@app.before_request
+def check_api_key():
+    if request.endpoint not in ['static', 'not_need_key_endpoint']:
+        # Проверьте наличие ключа в запросе
+        api_key = request.headers.get('Api-Key')
+
+        # Сравните ключ с ожидаемым значением
+        if api_key != SECRET_KEY:
+            return jsonify({'error': 'Invalid API key'}), 401
 
 @app.route('/')
 @app.route('/index')
