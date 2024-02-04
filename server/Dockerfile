@@ -14,4 +14,4 @@ EXPOSE 5000
 
 # CMD python ./run.py
 
-CMD ["gunicorn"  , "-b", "0.0.0.0:5000", "run:app"]
+CMD ["gunicorn" , "0.0.0.0:5000", "run:app"]
