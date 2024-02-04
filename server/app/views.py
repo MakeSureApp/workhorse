@@ -45,7 +45,7 @@ def checker():
     if key_name is None or key_value is None:
         return "Missing 'name' or 'key' in the request data", 400
 
-    query = "SELECT api_key FROM     WHERE service_name = %s"
+    query = "SELECT api_key FROM api_credentials  WHERE service_name = %s"
     cursor.execute(query, (key_name,))
     result = cursor.fetchone()
 
