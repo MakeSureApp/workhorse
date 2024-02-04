@@ -43,7 +43,7 @@ services:
     image: grafana/promtail:latest
     volumes:
       - /var/lib/docker/containers:/var/log/containers:ro
-    command: -config.file=./docker-config.yml
+      - ./promtail/docker-config.yml:/etc/promtail/config.yml
     depends_on:
       - loki
 
