@@ -25,11 +25,13 @@ services:
       - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/default.yaml
       - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/default.yaml
       - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+      - grafana_db:/var/lib/grafana/data
     ports:
       - 3000:3000
     depends_on:
       - prometheus
-  
+
   # loki:
   #   image: grafana/loki:latest
   #   ports:
