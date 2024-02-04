@@ -10,9 +10,7 @@ services:
       driver: loki
       options:
         loki-url: "http://loki:3100/loki/api/v1/push"
-
     stop_signal: SIGKILL
-
 
   prometheus:
     container_name: prometheus
@@ -40,18 +38,15 @@ services:
     image: grafana/loki:latest
     ports:
       - "3100:3100"
-  
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/lib/docker/containers:/var/log/containers:ro
+    command: -config.file=/etc/promtail/docker-config.yaml
+    depends_on:
+      - loki
+
 volumes:
   grafana_data:
   grafana_db:
-
-  # promtail:
-  #   image: grafana/promtail:latest
-  #   volumes:
-  #     - "/var/log:/var/log"
-  #     - "/var/lib/docker/containers:/var/lib/docker/containers"
-  #     - "/var/run/docker.sock:/var/run/docker.sock"
-  #     - "./promtail-config.yaml:/etc/promtail/config.yaml"
-  #   command: "-config.file=/etc/promtail/config.yaml"
-  #   depends_on:
-  #     - loki
