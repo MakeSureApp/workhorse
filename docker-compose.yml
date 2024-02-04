@@ -35,16 +35,15 @@ services:
       - 3000:3000
     depends_on:
       - prometheus
-  
-volumes:
-  grafana_data:
-  grafana_db:
-
 
   loki:
     image: grafana/loki:latest
     ports:
       - "3100:3100"
+  
+volumes:
+  grafana_data:
+  grafana_db:
 
   # promtail:
   #   image: grafana/promtail:latest
