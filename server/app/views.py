@@ -28,7 +28,7 @@ from common.helpers import convert_to_cv2, convert_to_pillow
 
 @app.before_request
 def check_api_key():
-    if request.endpoint not in ['static', 'checker', 'metrics', '/metrics']:
+    if request.endpoint not in ['static', 'checker', 'metrics', '/metrics', 'prometheus_metrics']:
         print('Имя эндпоинта:', request.endpoint)
         api_key = request.headers.get('Api-Key')
 

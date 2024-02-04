@@ -12,4 +12,6 @@ COPY . .
 
 EXPOSE 5000
 
-CMD python ./run.py
+# CMD python ./run.py
+
+CMD gunicorn main:"create_flask_app()" -b 0.0.0.0:5000 --reload
