@@ -28,7 +28,8 @@ from common.helpers import convert_to_cv2, convert_to_pillow
 
 @app.before_request
 def check_api_key():
-    if request.endpoint not in ['static', 'checker', 'metrics']:
+    if request.endpoint not in ['static', 'checker', 'metrics', '/metrics']:
+        print('Имя эндпоинта:', request.endpoint)
         api_key = request.headers.get('Api-Key')
 
         if api_key != SECRET_KEY:
@@ -44,7 +45,7 @@ def checker():
     if key_name is None or key_value is None:
         return "Missing 'name' or 'key' in the request data", 400
 
-    query = "SELECT api_key FROM api_credentials WHERE service_name = %s"
+    query = "SELECT api_key FROM     WHERE service_name = %s"
     cursor.execute(query, (key_name,))
     result = cursor.fetchone()
 
