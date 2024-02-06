@@ -11,6 +11,14 @@ services:
       options:
         loki-url: "http://loki:3100/loki/api/v1/push"
     stop_signal: SIGKILL
+  
+  app_restarter:
+    image: alpine
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    command: >
+      /bin/sh -c "while true; do sleep  3600; docker restart app; done"
+    restart: unless-stopped
 
   prometheus:
     container_name: prometheus
