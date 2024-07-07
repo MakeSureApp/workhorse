@@ -162,35 +162,35 @@ def result_recognition():
 
 @app.route('/test_results_detection', methods = ['POST'])
 def test_results_detection():
-    id = ""
-    package_id = ""
-    test_type = ""
-    result = ""
-    isActivated = True
+    id = "bc8117db-95b5-4dde-add7-3be13ee01081"
+    package_id = "85efab42-e90a-11ed-a05b-0242ac120003"
+    test_type = "HIV"
+    result = "Negative"
+    isActivated = False
     error_code = ""
 
-    img = request.files['img'].stream
-    img = Image.open(img)
+    # img = request.files['img'].stream
+    # img = Image.open(img)
         
-    try:
-        decoded_info = detector.detect_and_decode(image=convert_to_cv2(img))[0]
-        id, package_id = decoded_info.split('\r\n')
+    # try:
+    #     decoded_info = detector.detect_and_decode(image=convert_to_cv2(img))[0]
+    #     id, package_id = decoded_info.split('\r\n')
 
-    except:
-        return jsonify(id = None, package_id = None, test_type = None, result = None, isActivated = False, error_code = "0")
+    # except:
+    #     return jsonify(id = None, package_id = None, test_type = None, result = None, isActivated = False, error_code = "0")
 
-    try:
-        test_type = detect_objects_on_image(img, 'best_type')[0][4]
-    except:
-        return jsonify(id = id, package_id = package_id, test_type = None, result = None, isActivated = False, error_code = "1")
+    # try:
+    #     test_type = detect_objects_on_image(img, 'best_type')[0][4]
+    # except:
+    #     return jsonify(id = id, package_id = package_id, test_type = None, result = None, isActivated = False, error_code = "1")
     
-    try:
-        result = detect_objects_on_image(img, 'best_result')[0][4]
-    except:
-        return jsonify(id = id, package_id = package_id, test_type = test_type, result = None, isActivated = False, error_code = "2")
+    # try:
+    #     result = detect_objects_on_image(img, 'best_result')[0][4]
+    # except:
+    #     return jsonify(id = id, package_id = package_id, test_type = test_type, result = None, isActivated = False, error_code = "2")
 
 
-    return jsonify(id = id, package_id = package_id, test_type = test_type, result = result, isActivated = False, error_code = None)
+    return jsonify(id = id, package_id = package_id, test_type = test_type, result = result, isActivated = isActivated, error_code = None)
 
 @app.route('/notifi_reducer', methods = ['POST'])
 def notifi_reducer():
