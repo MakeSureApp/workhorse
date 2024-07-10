@@ -30,10 +30,7 @@ from common.helpers import convert_to_cv2, convert_to_pillow
 def check_api_key():
     if request.endpoint not in ["/index","index",'static', "test_results_detection", "/test_results_detection",'checker', 'metrics', '/metrics', 'prometheus_metrics']:
         print('Имя эндпоинта:', request.endpoint)
-        api_key = request.headers.get('Api-Key')
 
-        if api_key != SECRET_KEY:
-            return jsonify({'error': 'Invalid API key'}), 401
         
 @app.route('/checker', methods=['POST'])
 def checker():
