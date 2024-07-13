@@ -164,10 +164,10 @@ def test_results_detection():
     test_type = "HIV"
     result = "Negative"
     isActivated = False
-    error_code = ""
+    error_code = None
 
-    # img = request.files['img'].stream
-    # img = Image.open(img)
+    img = request.files['img'].stream
+    img = Image.open(img)
         
     # try:
     #     decoded_info = detector.detect_and_decode(image=convert_to_cv2(img))[0]
@@ -187,7 +187,7 @@ def test_results_detection():
     #     return jsonify(id = id, package_id = package_id, test_type = test_type, result = None, isActivated = False, error_code = "2")
 
 
-    return jsonify(id = id, package_id = package_id, test_type = test_type, result = result, isActivated = isActivated, error_code = None)
+    return jsonify(id = id, package_id = package_id, test_type = test_type, result = result, isActivated = isActivated, error_code = error_code)
 
 @app.route('/notifi_reducer', methods = ['POST'])
 def notifi_reducer():
