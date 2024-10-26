@@ -6,6 +6,8 @@ from ultralytics import YOLO
 from pillow_heif import register_heif_opener
 from base64 import b64encode
 from io import BytesIO
+import uuid
+import threading
 
 from qreader import QReader
 
@@ -22,7 +24,7 @@ model_result = YOLO('./weights/best_result.pt')
 detector = QReader()
 
 
-from common.pereferences import DEBUG, PORT, HOST, THREADED, TYPES, RESULTS, SECRET_KEY
+from common.pereferences import DEBUG, PORT, HOST, THREADED, TYPES, RESULTS, SECRET_KEY, BOT_TOKEN, CHAT_ID
 from common.helpers import convert_to_cv2, convert_to_pillow
 
 
@@ -157,37 +159,96 @@ def result_recognition():
     return render_template("result.html", route = "/testing_result", result = test_result, result_image = dataurl)
 
 
-@app.route('/test_results_detection', methods = ['POST'])
-def test_results_detection():
-    id = "bc8117db-95b5-4dde-add7-3be13ee01081"
-    package_id = "85efab42-e90a-11ed-a05b-0242ac120003"
-    test_type = "HIV"
-    result = "Negative"
-    isActivated = False
-    error_code = None
+# Словарь для хранения событий ожидания
+waiting_events = {}
+waiting_results = {}
 
+@app.route('/test_results_detection', methods=['POST'])
+def test_results_detection():
+    # Уникальный идентификатор для хранения состояния
+    unique_id = str(uuid.uuid4())
+
+    # Получаем изображение
     img = request.files['img'].stream
     img = Image.open(img)
-        
-    # try:
-    #     decoded_info = detector.detect_and_decode(image=convert_to_cv2(img))[0]
-    #     id, package_id = decoded_info.split('\r\n')
 
-    # except:
-    #     return jsonify(id = None, package_id = None, test_type = None, result = None, isActivated = False, error_code = "0")
+    # Отправляем фото в Telegram и сохраняем состояние ожидания
+    send_photo_to_telegram(img, unique_id)
 
-    # try:
-    #     test_type = detect_objects_on_image(img, 'best_type')[0][4]
-    # except:
-    #     return jsonify(id = id, package_id = package_id, test_type = None, result = None, isActivated = False, error_code = "1")
+    # Создаем событие ожидания
+    event = threading.Event()
+    waiting_events[unique_id] = event
+
+    # Блокируем поток до получения результата
+    event.wait()
+
+    # Получаем результат из waiting_results
+    result = waiting_results.get(unique_id, "No response received")
+
+    # Удаляем состояние
+    del waiting_events[unique_id]
+    del waiting_results[unique_id]
+
+    return jsonify({"result": result})
+
+def send_photo_to_telegram(file_path, unique_id):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
     
-    # try:
-    #     result = detect_objects_on_image(img, 'best_result')[0][4]
-    # except:
-    #     return jsonify(id = id, package_id = package_id, test_type = test_type, result = None, isActivated = False, error_code = "2")
+    # Prepare the file
+    files = {'photo': open(file_path, 'rb')}
 
+    # Prepare the payload with the inline keyboard
+    payload = {
+        'chat_id': CHAT_ID,
+        'caption': '',
+        'reply_markup': json.dumps({
+            'inline_keyboard': [
+                [{'text': 'Positive', 'callback_data': f'positive_{unique_id}'},
+                 {'text': 'Negative', 'callback_data': f'negative_{unique_id}'},
+                 {'text': 'Error', 'callback_data': f'error_{unique_id}'}]
+            ]
+        })
+    }
 
-    return jsonify(id = id, package_id = package_id, test_type = test_type, result = result, isActivated = isActivated, error_code = error_code)
+    # Send the request to Telegram
+    response = requests.post(url, files=files, data=payload)
+
+    # Close the file after sending
+    files['photo'].close()
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = request.json
+    callback_query = update.get('callback_query')
+
+    if callback_query:
+        user_id = callback_query['from']['id']
+        callback_data = callback_query['data']
+        
+        # Извлекаем уникальный идентификатор из callback_data
+        response_type = callback_data.split('_')[0]
+        unique_id = callback_data.split('_')[1]
+
+        # Сохраняем ответ в словаре
+        waiting_results[unique_id] = response_type
+
+        # Уведомляем, что результат получен
+        if unique_id in waiting_events:
+            waiting_events[unique_id].set()
+
+        # Отправляем сообщение пользователю
+        send_message_to_telegram(user_id, f"You clicked: {response_type}")
+
+    return jsonify({'status': 'ok'})
+
+def send_message_to_telegram(chat_id, text):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {
+        'chat_id': chat_id,
+        'text': text
+    }
+    requests.post(url, data=payload)
+
 
 @app.route('/notifi_reducer', methods = ['POST'])
 def notifi_reducer():
