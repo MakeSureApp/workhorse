@@ -5,8 +5,8 @@ services:
     container_name: app
     build: server/
     environment:
-      - BOT_TOKEN=1063474249
-      - CHAT_ID=6652400283:AAHSsoxkrPnozToADF_x1rRbJjXK8399N1w
+      - BOT_TOKEN=6652400283:AAHSsoxkrPnozToADF_x1rRbJjXK8399N1w
+      - CHAT_ID=1063474249
     ports:
       - "3080:5000"
     # logging:
