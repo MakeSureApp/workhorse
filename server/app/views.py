@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify, render_template
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import cv2
-from ultralytics import YOLO
-from pillow_heif import register_heif_opener
+#from ultralytics import YOLO
+#from pillow_heif import register_heif_opener
 from base64 import b64encode
 from io import BytesIO
 import uuid
@@ -13,7 +13,7 @@ from qreader import QReader
 
 
 from app import app, db_connection, cursor
-from app.detection_onnx import detect_objects_on_image
+#from app.detection_onnx import detect_objects_on_image
 from app.supabase_api import get_n_send
 
 register_heif_opener()
