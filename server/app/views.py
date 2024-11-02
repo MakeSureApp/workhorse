@@ -181,7 +181,7 @@ def test_results_detection():
         tmp_file_path = tmp_file.name
 
     # Отправляем фото в Telegram и сохраняем состояние ожидания
-    send_photo_to_telegram(tmp_file_path, unique_id)
+    message_id = send_photo_to_telegram(tmp_file_path, unique_id)
 
     # Создаем событие ожидания
     event = threading.Event()
@@ -196,11 +196,9 @@ def test_results_detection():
     # Удаляем состояние и временный файл
     del waiting_events[unique_id]
     del waiting_results[unique_id]
-
-    # Удаляем временный файл после отправки
     os.remove(tmp_file_path)
 
-    return jsonify({"result": result})
+    return jsonify({"session_id": unique_id, "result": result})
 
 def send_photo_to_telegram(file_path, unique_id):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
@@ -220,6 +218,9 @@ def send_photo_to_telegram(file_path, unique_id):
             })
         }
         response = requests.post(url, files=files, data=payload)
+
+        # Возвращаем идентификатор сообщения (для обработки, если потребуется)
+        return response.json().get('result', {}).get('message_id')
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -254,8 +255,7 @@ def send_message_to_telegram(chat_id, text):
     }
     requests.post(url, data=payload)
 
-
-@app.route('/notifi_reducer', methods = ['POST'])
+@app.route('/notifi_reducer', methods=['POST'])
 def notifi_reducer():
     get_n_send()
 
