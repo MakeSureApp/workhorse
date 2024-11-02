@@ -12,7 +12,7 @@ import threading
 #from qreader import QReader
 
 
-from app import app, db_connection, cursor
+# from app import app, db_connection, cursor
 #from app.detection_onnx import detect_objects_on_image
 from app.supabase_api import get_n_send
 
@@ -34,28 +34,28 @@ def check_api_key():
         print('Имя эндпоинта:', request.endpoint)
 
         
-@app.route('/checker', methods=['POST'])
-def checker():
-    data = request.json
+# @app.route('/checker', methods=['POST'])
+# def checker():
+#     data = request.json
 
-    key_name = data.get('name')
-    key_value = data.get('key')
+#     key_name = data.get('name')
+#     key_value = data.get('key')
 
-    if key_name is None or key_value is None:
-        return "Missing 'name' or 'key' in the request data", 400
+#     if key_name is None or key_value is None:
+#         return "Missing 'name' or 'key' in the request data", 400
 
-    query = "SELECT api_key FROM api_credentials  WHERE service_name = %s"
-    cursor.execute(query, (key_name,))
-    result = cursor.fetchone()
+#     query = "SELECT api_key FROM api_credentials  WHERE service_name = %s"
+#     cursor.execute(query, (key_name,))
+#     result = cursor.fetchone()
 
-    if result is not None and result[0] == key_value:
-        # Если ключ совпадает, возвращаем "OK"
-        return "OK"
-    elif result is not None:
-        # Если ключ не совпадает, возвращаем значение ключа из базы данных
-        return result[0]
-    else:
-        return "NOT KEY NAME"
+#     if result is not None and result[0] == key_value:
+#         # Если ключ совпадает, возвращаем "OK"
+#         return "OK"
+#     elif result is not None:
+#         # Если ключ не совпадает, возвращаем значение ключа из базы данных
+#         return result[0]
+#     else:
+#         return "NOT KEY NAME"
 
 @app.route('/')
 @app.route('/index')
