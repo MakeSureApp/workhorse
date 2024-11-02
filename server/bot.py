@@ -13,7 +13,7 @@ waiting_events = {}
 waiting_results = {}
 
 # Файл для хранения chat_id
-CHAT_ID_FILE = 'chat_id.txt'
+CHAT_ID_FILE = 'chat_ids.txt'
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Hello! Waiting for photo to be sent.')
