@@ -9,10 +9,10 @@ services:
       - CHAT_ID=6652400283:AAHSsoxkrPnozToADF_x1rRbJjXK8399N1w
     ports:
       - "3080:5000"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://loki:3100/loki/api/v1/push"
+    # logging:
+    #   driver: loki
+    #   options:
+    #     loki-url: "http://loki:3100/loki/api/v1/push"
     stop_signal: SIGKILL
   
 #   app_restarter:
