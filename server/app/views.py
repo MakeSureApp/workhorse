@@ -181,24 +181,14 @@ def test_results_detection():
         tmp_file_path = tmp_file.name
 
     # Отправляем фото в Telegram и сохраняем состояние ожидания
-    message_id = send_photo_to_telegram(tmp_file_path, unique_id)
+    send_photo_to_telegram(tmp_file_path, unique_id)
 
-    # Создаем событие ожидания
+    # Создаем событие ожидания (по желанию, если нужно контролировать состояние)
     event = threading.Event()
     waiting_events[unique_id] = event
 
-    # Блокируем поток до получения результата
-    event.wait()
-
-    # Получаем результат из waiting_results
-    result = waiting_results.get(unique_id, "No response received")
-
-    # Удаляем состояние и временный файл
-    del waiting_events[unique_id]
-    del waiting_results[unique_id]
-    os.remove(tmp_file_path)
-
-    return jsonify({"session_id": unique_id, "result": result})
+    # Здесь не блокируем поток. Просто возвращаем идентификатор сессии.
+    return jsonify({"session_id": unique_id})
 
 def send_photo_to_telegram(file_path, unique_id):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
@@ -219,9 +209,6 @@ def send_photo_to_telegram(file_path, unique_id):
         }
         response = requests.post(url, files=files, data=payload)
 
-        # Возвращаем идентификатор сообщения (для обработки, если потребуется)
-        return response.json().get('result', {}).get('message_id')
-
 @app.route('/webhook', methods=['POST'])
 def webhook():
     update = request.json
@@ -238,7 +225,7 @@ def webhook():
         # Сохраняем ответ в словаре
         waiting_results[unique_id] = response_type
 
-        # Уведомляем, что результат получен
+        # Уведомляем, что результат получен (если нужно, можно добавить логику для уведомления)
         if unique_id in waiting_events:
             waiting_events[unique_id].set()
 
