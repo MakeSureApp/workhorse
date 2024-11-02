@@ -7,6 +7,7 @@ from pillow_heif import register_heif_opener
 from base64 import b64encode
 from io import BytesIO
 import uuid
+import tempfile
 import threading
 
 #from qreader import QReader
@@ -172,8 +173,13 @@ def test_results_detection():
     img = request.files['img'].stream
     img = Image.open(img)
 
+    # Сохраняем изображение во временный файл
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp_file:
+        img.save(tmp_file, format="JPEG")
+        tmp_file_path = tmp_file.name
+
     # Отправляем фото в Telegram и сохраняем состояние ожидания
-    send_photo_to_telegram(img, unique_id)
+    send_photo_to_telegram(tmp_file_path, unique_id)
 
     # Создаем событие ожидания
     event = threading.Event()
@@ -185,36 +191,33 @@ def test_results_detection():
     # Получаем результат из waiting_results
     result = waiting_results.get(unique_id, "No response received")
 
-    # Удаляем состояние
+    # Удаляем состояние и временный файл
     del waiting_events[unique_id]
     del waiting_results[unique_id]
+
+    # Удаляем временный файл после отправки
+    os.remove(tmp_file_path)
 
     return jsonify({"result": result})
 
 def send_photo_to_telegram(file_path, unique_id):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
-    
-    # Prepare the file
-    files = {'photo': open(file_path, 'rb')}
 
-    # Prepare the payload with the inline keyboard
-    payload = {
-        'chat_id': CHAT_ID,
-        'caption': '',
-        'reply_markup': json.dumps({
-            'inline_keyboard': [
-                [{'text': 'Positive', 'callback_data': f'positive_{unique_id}'},
-                 {'text': 'Negative', 'callback_data': f'negative_{unique_id}'},
-                 {'text': 'Error', 'callback_data': f'error_{unique_id}'}]
-            ]
-        })
-    }
-
-    # Send the request to Telegram
-    response = requests.post(url, files=files, data=payload)
-
-    # Close the file after sending
-    files['photo'].close()
+    # Открываем временный файл и отправляем в Telegram
+    with open(file_path, 'rb') as file:
+        files = {'photo': file}
+        payload = {
+            'chat_id': CHAT_ID,
+            'caption': '',
+            'reply_markup': json.dumps({
+                'inline_keyboard': [
+                    [{'text': 'Positive', 'callback_data': f'positive_{unique_id}'},
+                     {'text': 'Negative', 'callback_data': f'negative_{unique_id}'},
+                     {'text': 'Error', 'callback_data': f'error_{unique_id}'}]
+                ]
+            })
+        }
+        response = requests.post(url, files=files, data=payload)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
