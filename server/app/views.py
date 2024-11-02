@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import cv2
 #from ultralytics import YOLO
-#from pillow_heif import register_heif_opener
+from pillow_heif import register_heif_opener
 from base64 import b64encode
 from io import BytesIO
 import uuid
