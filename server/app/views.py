@@ -9,6 +9,7 @@ from io import BytesIO
 import uuid
 import tempfile
 import threading
+import json
 
 #from qreader import QReader
 
