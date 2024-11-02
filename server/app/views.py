@@ -11,8 +11,7 @@ import threading
 
 #from qreader import QReader
 
-
-# from app import app, db_connection, cursor
+from app import app
 #from app.detection_onnx import detect_objects_on_image
 from app.supabase_api import get_n_send
 
