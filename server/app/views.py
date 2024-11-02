@@ -18,8 +18,8 @@ from app.supabase_api import get_n_send
 
 register_heif_opener()
 
-model_type = YOLO('./weights/best_type.pt')
-model_result = YOLO('./weights/best_result.pt')
+# model_type = YOLO('./weights/best_type.pt')
+# model_result = YOLO('./weights/best_result.pt')
 
 #detector = QReader()
 
@@ -113,51 +113,51 @@ def qr_recognition():
     return render_template("result.html", route = "/testing_qr", result = decoded_info, result_image = dataurl )
 
 
-@app.route('/type_recognition', methods = ['POST'])
-def type_recognition():
-    test_type = ""
-    img = Image.open(request.files['img'].stream)
+# @app.route('/type_recognition', methods = ['POST'])
+# def type_recognition():
+#     test_type = ""
+#     img = Image.open(request.files['img'].stream)
 
-    cv_img = convert_to_cv2(img)
+#     cv_img = convert_to_cv2(img)
 
-    try:
-        results = model_type.predict(cv_img)
-        test_type = TYPES[int(results[0].boxes.cls[0])]
-        annotated_frame = results[0].plot()
+#     try:
+#         results = model_type.predict(cv_img)
+#         test_type = TYPES[int(results[0].boxes.cls[0])]
+#         annotated_frame = results[0].plot()
 
-        print(test_type)
-    except:
-        return render_template("result.html", route = "/testing_type", result = "Null" )
+#         print(test_type)
+#     except:
+#         return render_template("result.html", route = "/testing_type", result = "Null" )
 
-    img = convert_to_pillow(annotated_frame)
-    image_io = BytesIO()
-    img.save(image_io, 'PNG')
-    dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
+#     img = convert_to_pillow(annotated_frame)
+#     image_io = BytesIO()
+#     img.save(image_io, 'PNG')
+#     dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
 
-    return render_template("result.html", route = "/testing_type", result = test_type, result_image = dataurl)
+#     return render_template("result.html", route = "/testing_type", result = test_type, result_image = dataurl)
 
-@app.route('/result_recognition', methods = ['POST'])
-def result_recognition():
-    test_type = ""
-    img = Image.open(request.files['img'].stream)
+# @app.route('/result_recognition', methods = ['POST'])
+# def result_recognition():
+#     test_type = ""
+#     img = Image.open(request.files['img'].stream)
 
-    cv_img = convert_to_cv2(img)
+#     cv_img = convert_to_cv2(img)
 
-    try:
-        results = model_result.predict(cv_img)
-        test_result = TYPES[int(results[0].boxes.cls[0])]
-        annotated_frame = results[0].plot()
+#     try:
+#         results = model_result.predict(cv_img)
+#         test_result = TYPES[int(results[0].boxes.cls[0])]
+#         annotated_frame = results[0].plot()
 
-        print(test_type)
-    except:
-        return render_template("result.html", route = "/testing_result", result = "Null" )
+#         print(test_type)
+#     except:
+#         return render_template("result.html", route = "/testing_result", result = "Null" )
 
-    img = convert_to_pillow(annotated_frame)
-    image_io = BytesIO()
-    img.save(image_io, 'PNG')
-    dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
+#     img = convert_to_pillow(annotated_frame)
+#     image_io = BytesIO()
+#     img.save(image_io, 'PNG')
+#     dataurl = 'data:image/png;base64,' + b64encode(image_io.getvalue()).decode('ascii')
 
-    return render_template("result.html", route = "/testing_result", result = test_result, result_image = dataurl)
+#     return render_template("result.html", route = "/testing_result", result = test_result, result_image = dataurl)
 
 
 # Словарь для хранения событий ожидания
