@@ -9,7 +9,7 @@ from io import BytesIO
 import uuid
 import threading
 
-from qreader import QReader
+#from qreader import QReader
 
 
 from app import app, db_connection, cursor
@@ -21,7 +21,7 @@ register_heif_opener()
 model_type = YOLO('./weights/best_type.pt')
 model_result = YOLO('./weights/best_result.pt')
 
-detector = QReader()
+#detector = QReader()
 
 
 from common.pereferences import DEBUG, PORT, HOST, THREADED, TYPES, RESULTS, SECRET_KEY, BOT_TOKEN, CHAT_ID
@@ -101,7 +101,8 @@ def qr_recognition():
     # bw_im = binarization.nlbin(img)
 
     try:
-        decoded_info = detector.detect_and_decode(image=convert_to_cv2(img))[0]
+        #decoded_info = detector.detect_and_decode(image=convert_to_cv2(img))[0]
+        print("lol")
     except:
         return render_template("result.html", route = "/testing_qr", result = "Null" )
 
