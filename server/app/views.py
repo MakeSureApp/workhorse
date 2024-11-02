@@ -10,6 +10,7 @@ import uuid
 import tempfile
 import threading
 import json
+import requests
 
 #from qreader import QReader
 
