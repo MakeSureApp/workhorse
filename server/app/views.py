@@ -29,6 +29,12 @@ register_heif_opener()
 from common.pereferences import DEBUG, PORT, HOST, THREADED, TYPES, RESULTS, SECRET_KEY, BOT_TOKEN, CHAT_ID
 from common.helpers import convert_to_cv2, convert_to_pillow
 
+CHAT_ID_FILE = 'chat_ids.txt'
+
+def get_all_chat_ids():
+    with open(CHAT_ID_FILE, 'r') as file:
+        chat_ids = file.read().splitlines()
+    return chat_ids
 
 @app.before_request
 def check_api_key():
@@ -180,8 +186,10 @@ def test_results_detection():
         img.save(tmp_file, format="JPEG")
         tmp_file_path = tmp_file.name
 
-    # Отправляем фото в Telegram и сохраняем состояние ожидания
-    send_photo_to_telegram(tmp_file_path, unique_id)
+    chat_ids = get_all_chat_ids()
+    for chat_id in chat_ids:
+        # Отправляем фото в Telegram и сохраняем состояние ожидания
+        send_photo_to_telegram(tmp_file_path, unique_id, chat_id)
 
     # Создаем событие ожидания (по желанию, если нужно контролировать состояние)
     event = threading.Event()
@@ -190,14 +198,14 @@ def test_results_detection():
     # Здесь не блокируем поток. Просто возвращаем идентификатор сессии.
     return jsonify({"session_id": unique_id})
 
-def send_photo_to_telegram(file_path, unique_id):
+def send_photo_to_telegram(file_path, unique_id, chat_id):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
 
     # Открываем временный файл и отправляем в Telegram
     with open(file_path, 'rb') as file:
         files = {'photo': file}
         payload = {
-            'chat_id': CHAT_ID,
+            'chat_id': chat_id,
             'caption': '',
             'reply_markup': json.dumps({
                 'inline_keyboard': [
