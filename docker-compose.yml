@@ -15,49 +15,49 @@ services:
         loki-url: "http://loki:3100/loki/api/v1/push"
     stop_signal: SIGKILL
   
-  app_restarter:
-    image: alpine
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    command: >
-      /bin/sh -c "while true; do sleep  3600; docker restart app; done"
-    restart: unless-stopped
+#   app_restarter:
+#     image: alpine
+#     volumes:
+#       - "/var/run/docker.sock:/var/run/docker.sock"
+#     command: >
+#       /bin/sh -c "while true; do sleep  3600; docker restart app; done"
+#     restart: unless-stopped
 
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:v2.2.1
-    volumes:
-      - ./prometheus/config.yml:/etc/prometheus/prometheus.yml
-    depends_on:
-      - app
+#   prometheus:
+#     container_name: prometheus
+#     image: prom/prometheus:v2.2.1
+#     volumes:
+#       - ./prometheus/config.yml:/etc/prometheus/prometheus.yml
+#     depends_on:
+#       - app
 
-  grafana:
-    image: grafana/grafana:latest
-    volumes:
-      - ./grafana/config.ini:/etc/grafana/grafana.ini
-      - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/default.yaml
-      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/default.yaml
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-      - grafana_data:/var/lib/grafana
-      - grafana_db:/var/lib/grafana/data
-    ports:
-      - 3000:3000
-    depends_on:
-      - prometheus
+#   grafana:
+#     image: grafana/grafana:latest
+#     volumes:
+#       - ./grafana/config.ini:/etc/grafana/grafana.ini
+#       - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/default.yaml
+#       - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/default.yaml
+#       - ./grafana/dashboards:/var/lib/grafana/dashboards
+#       - grafana_data:/var/lib/grafana
+#       - grafana_db:/var/lib/grafana/data
+#     ports:
+#       - 3000:3000
+#     depends_on:
+#       - prometheus
 
-  loki:
-    image: grafana/loki:latest
-    ports:
-      - "3100:3100"
+#   loki:
+#     image: grafana/loki:latest
+#     ports:
+#       - "3100:3100"
 
-  promtail:
-    image: grafana/promtail:latest
-    volumes:
-      - /var/lib/docker/containers:/var/log/containers:ro
-      - ./promtail/docker-config.yml:/etc/promtail/config.yml
-    depends_on:
-      - loki
+#   promtail:
+#     image: grafana/promtail:latest
+#     volumes:
+#       - /var/lib/docker/containers:/var/log/containers:ro
+#       - ./promtail/docker-config.yml:/etc/promtail/config.yml
+#     depends_on:
+#       - loki
 
-volumes:
-  grafana_data:
-  grafana_db:
+# volumes:
+#   grafana_data:
+#   grafana_db:
